@@ -1,16 +1,16 @@
 package com.vanta.cloudphone
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.os.Bundle
 import android.view.MotionEvent
 import android.widget.FrameLayout
-import androidx.appcompat.app.AppCompatActivity
 import okhttp3.*
 import org.json.JSONObject
 import org.webrtc.*
 import java.util.concurrent.TimeUnit
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : Activity() {
 
     private lateinit var root: FrameLayout
     private lateinit var surfaceViewRenderer: SurfaceViewRenderer
@@ -24,7 +24,6 @@ class MainActivity : AppCompatActivity() {
     private var remoteWidth = 720
     private var remoteHeight = 1280
 
-    // Replace with your bridge host + signaling path.
     private val signalUrl = "wss://your-host.example.com/signal"
 
     @SuppressLint("ClickableViewAccessibility")
@@ -48,7 +47,6 @@ class MainActivity : AppCompatActivity() {
     private fun initWebRtc() {
         PeerConnectionFactory.initialize(
             PeerConnectionFactory.InitializationOptions.builder(this)
-                .setEnableInternalTracer(false)
                 .createInitializationOptions()
         )
         eglBase = EglBase.create()
@@ -73,8 +71,6 @@ class MainActivity : AppCompatActivity() {
 
         val config = PeerConnection.RTCConfiguration(iceServers).apply {
             sdpSemantics = PeerConnection.SdpSemantics.UNIFIED_PLAN
-            bundlePolicy = PeerConnection.BundlePolicy.MAXBUNDLE
-            rtcpMuxPolicy = PeerConnection.RtcpMuxPolicy.REQUIRE
         }
 
         peerConnection = peerConnectionFactory.createPeerConnection(
@@ -109,6 +105,7 @@ class MainActivity : AppCompatActivity() {
                 override fun onSignalingChange(p0: PeerConnection.SignalingState?) {}
                 override fun onIceConnectionReceivingChange(p0: Boolean) {}
                 override fun onIceGatheringChange(p0: PeerConnection.IceGatheringState?) {}
+                override fun onIceCandidatesRemoved(p0: Array<out IceCandidate>?) {}
                 override fun onAddStream(p0: MediaStream?) {}
                 override fun onRemoveStream(p0: MediaStream?) {}
                 override fun onRenegotiationNeeded() {}
@@ -154,10 +151,6 @@ class MainActivity : AppCompatActivity() {
                             msg.getInt("sdpMLineIndex"),
                             msg.getString("candidate")
                         ))
-                    }
-                    "display" -> {
-                        remoteWidth = msg.optInt("width", remoteWidth)
-                        remoteHeight = msg.optInt("height", remoteHeight)
                     }
                 }
             }
