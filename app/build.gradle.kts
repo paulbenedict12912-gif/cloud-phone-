@@ -23,6 +23,6 @@ android {
 }
 
 dependencies {
-    implementation("org.webrtc:google-webrtc:1.0.32006")
+    implementation("io.github.webrtc-sdk:android:125.6422.07")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
 }
